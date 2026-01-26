@@ -13,6 +13,21 @@ logger = logging.getLogger(__name__)
 # tool function type
 ToolFunction = Callable[..., Any]
 
+# Dictionary to store registered tools
+_TOOLS: Dict[str, ToolFunction] = {}
+
+def register_tool(func: ToolFunction) -> ToolFunction:
+    """
+    Decorator to register a function as a tool.
+
+    Args:
+        func: Function to register as a tool
+
+    Returns:
+        The registered function
+    """
+    _TOOLS[func.__name__] = func
+    return func
 
 __all__ = [
     'register_tool',
@@ -27,21 +42,29 @@ __all__ = [
     'load_tools'
 ]
 
-# Dictionary to store registered tools
-_TOOLS: Dict[str, ToolFunction] = {}
+# Try to import built-in tools, handle import errors gracefully
+try:
+    from .basic_tools import (
+        calculator, get_current_time, get_system_info, file_status,
+        disk_usage, process_list, system_load, web_search, http_request
+    )
+    logger.debug("Imported all tools from basic_tools")
+except ImportError as e:
+    logger.warning(f"Failed to import some tools: {e}")
 
-def register_tool(func: ToolFunction) -> ToolFunction:
-    """
-    Decorator to register a function as a tool.
-    
-    Args:
-        func: Function to register as a tool
-        
-    Returns:
-        The registered function
-    """
-    _TOOLS[func.__name__] = func
-    return func
+# Code tools (optional import so the package remains robust)
+try:
+    from .code_tools import read, write, edit, glob, grep, bash
+    logger.debug("Imported all tools from code_tools")
+except ImportError as e:
+    logger.warning(f"Failed to import code tools: {e}")
+
+# Calculator tool (from caculator.py)
+try:
+    from .caculator import calculate
+    logger.debug("Imported calculate tool from caculator.py")
+except ImportError as e:
+    logger.warning(f"Failed to import calculate tool: {e}")
 
 def get_registered_tools() -> Dict[str, ToolFunction]:
     """
@@ -248,7 +271,7 @@ def load_tools(tools: Union[List[str], str, None] = None) -> List[str]:
     if tools is None:
         # Load all available tools
         tools = [
-            "calculator", "get_current_time", "system_info", "file_stats",
+            "calculator", "get_current_time", "get_system_info", "file_stats",
             "disk_usage", "process_list", "system_load", "web_search", "http_request"
             , "read", "write", "edit", "glob", "grep", "bash"
         ]
