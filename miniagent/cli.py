@@ -19,7 +19,7 @@ sys.path.append(os.getcwd())
 
 from miniagent.memory import Memory
 from miniagent.agent import MiniAgent  
-from miniagent.config import load_config 
+from miniagent.config import load_config,save_config
 
 logger = logging.getLogger("MiniAgent")
 
@@ -190,10 +190,10 @@ def _tool_callback(event: str, name: str, payload: Dict[str, Any]) -> None:
 def _build_agent(args: argparse.Namespace) -> tuple[MiniAgent, Memory]:
     """
     Build the MiniAgent instance with the given arguments.
-    
+
     Args:
         args: Parsed command-line arguments
-        
+
     Returns:
         Tuple of (MiniAgent instance, Memory instance)
     """
@@ -203,11 +203,27 @@ def _build_agent(args: argparse.Namespace) -> tuple[MiniAgent, Memory]:
     api_key = args.api_key or cfg.llm.api_key
     base_url = args.base_url or cfg.llm.api_base
     temperature = args.temperature if args.temperature is not None else cfg.llm.temperature
+    top_p = args.top_p if args.top_p is not None else cfg.llm.top_p
+
+    # Update config with command-line values
+    if args.model:
+        cfg.llm.model_name = model
+    if args.api_key:
+        cfg.llm.api_key = api_key
+    if args.base_url:
+        cfg.llm.api_base = base_url
+    if args.temperature is not None:
+        cfg.llm.temperature = temperature
+    if args.top_p is not None:
+        cfg.llm.top_p = top_p
 
     if not api_key:
         raise SystemExit("Missing API key. Set LLM_API_KEY or pass --api-key.")
 
-    memory = Memory()
+    if args.load:
+        memory = Memory.from_index(args.load)
+    else:
+        memory = Memory()
     memory.load()
 
     system_prompt = cfg.system_prompt
@@ -220,25 +236,34 @@ def _build_agent(args: argparse.Namespace) -> tuple[MiniAgent, Memory]:
         api_key = api_key,
         base_url = base_url,
         temperature = temperature,
+        top_p = top_p,
         system_prompt = system_prompt,
         use_reflector = cfg.enable_reflection,
     )
-
+    logger.info(f"Using model: {model}, temperature: {temperature}, top_p: {top_p}")
     # Load some default tools if configured, else fall back to all currently registered.
     agent.tools = []
     tools = cfg.default_tools or agent.get_available_tools()
     for tool_name in tools:
         agent.load_builtin_tool(tool_name)
-
+    
+    if args.config:
+        save_config(cfg, args.config)
+    else:
+        save_config(cfg, ".miniagent/configs/config.json")
     return agent, memory
 
 def args_parse():
     parser = argparse.ArgumentParser(prog = "miniagent", description = "MiniAgent interactive CLI")
-    parser.add_argument("--config", help = "Path to config JSON")
-    parser.add_argument("--model", help = "Override model name")
-    parser.add_argument("--api-key", help = "Override API key")
-    parser.add_argument("--base-url", help = "Override base URL")
-    parser.add_argument("--temperature", type = float, help = "Override temperature")
+    parser.add_argument("--config", help = "Path to config JSON for loading")
+    parser.add_argument("--model", help = "Choose model to use")
+    parser.add_argument("--api-key", help = "API key for LLM service")
+    parser.add_argument("--base-url", help = "Base URL for LLM service")
+    parser.add_argument("--temperature", type = float, default = 0.3, help = "Temperature for LLM model")
+    parser.add_argument("--top-p", type = float, default = 0.9, help = "Top-p (nucleus sampling) for LLM model")
+
+    parser.add_argument("--load", type = int, choices = range(1, 9), metavar = "N",
+                        help = "Load memory from previous conversation N (1-8), where 1 is the most recent")
     args = parser.parse_args()
     return args
 

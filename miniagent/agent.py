@@ -27,7 +27,8 @@ class MiniAgent():
         api_key: str,
         base_url: Optional[str] = None,
         temperature: float = 0.1,
-        top_p: float = 0.95,
+        top_p: float = 0.9,
+        system_prompt: Optional[str] = None,
         system_prompt_file: Optional[str] = "prompts/system_prompt.md",
         use_reflector: bool = False  ,
         **kwargs
@@ -52,19 +53,23 @@ class MiniAgent():
         self.top_p = top_p
 
         # Load system prompt
-        # Determine prompt file path
-        prompt_file = system_prompt_file or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "prompts", "system_prompt.txt")
-        if os.path.exists(prompt_file):
-            try:
-                with open(prompt_file, "r", encoding="utf-8") as f:
-                    self.system_prompt = f.read().strip()
-                logger.info(f"System prompt loaded from file: {prompt_file}")
-            except Exception as e:
-                logger.warning(f"Failed to load system prompt from file {prompt_file}: {e}")
-                self.system_prompt = "You are a helpful assistant called MiniAgent created by brench that can use tools to get information and perform tasks."
+        if system_prompt:
+            self.system_prompt = system_prompt
+            logger.info("System prompt provided as parameter")
         else:
-            logger.warning(f"System prompt file not found: {prompt_file}")
-            self.system_prompt = "You are a helpful assistant called MiniAgent created by brench that can use tools to get information and perform tasks."
+            # Determine prompt file path
+            prompt_file = system_prompt_file or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "prompts", "system_prompt.txt")
+            if os.path.exists(prompt_file):
+                try:
+                    with open(prompt_file, "r", encoding="utf-8") as f:
+                        self.system_prompt = f.read().strip()
+                    logger.info(f"System prompt loaded from file: {prompt_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to load system prompt from file {prompt_file}: {e}")
+                    self.system_prompt = "You are a helpful assistant called MiniAgent created by brench that can use tools to get information and perform tasks."
+            else:
+                logger.warning(f"System prompt file not found: {prompt_file}")
+                self.system_prompt = "You are a helpful assistant called MiniAgent created by brench that can use tools to get information and perform tasks."
         self.tools = []
         self.client = None
         self.use_reflector = use_reflector

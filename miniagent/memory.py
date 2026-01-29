@@ -3,20 +3,76 @@ import time
 import json
 import logging
 from pathlib import Path
+from datetime import datetime
 from typing import Any, Dict, List, Optional
+
 
 from dataclasses import dataclass, field
 
 logger = logging.getLogger("MiniAgent Memory")
 
 
+def _get_memory_dir() -> Path:
+    """
+    Get memory directory from environment variable or use default location
+    """
+    memory_dir = Path(os.environ.get("MINIAGENT_HOME", ".miniagent")).expanduser() / "memory"
+    memory_dir.mkdir(parents = True, exist_ok = True)
+    return memory_dir
+
+
+def _generate_timestamped_filename() -> str:
+    """
+    Generate timestamped filename in format: YYYYMMDD_HHMM.json
+    """
+    return datetime.now().strftime("%Y%m%d_%H%M.json")
+
+
+def _list_memory_files() -> List[Path]:
+    """
+    List all memory files in memory directory sorted by creation time (oldest to newest)
+    """
+    memory_dir = _get_memory_dir()
+    memory_files = sorted(
+        [f for f in memory_dir.glob("*.json") if f.name != "memory.json"],
+        key = lambda x: x.stat().st_ctime
+    )
+    return memory_files
+
+
+def _manage_memory_files(max_files: int = 8) -> None:
+    """
+    Manage memory files: keep only the most recent `max_files` files
+    """
+    memory_files = _list_memory_files()
+    if len(memory_files) > max_files:
+        files_to_delete = memory_files[:len(memory_files) - max_files]
+        for file in files_to_delete:
+            try:
+                file.unlink()
+                logger.info(f"Deleted old memory file: {file}")
+            except Exception:
+                logger.exception(f"Failed to delete old memory file: {file}")
+
+
 def _default_memory_path() -> Path:
     """
-    Get default memory path from environment variable or use default location
+    Get default memory path with timestamped filename
     """
-    default_path = Path(os.environ.get("MINIAGENT_HOME", ".miniagent")).expanduser()
-    default_path.mkdir(parents = True, exist_ok = True)
-    return default_path / "memory.json"
+    memory_dir = _get_memory_dir()
+    _manage_memory_files()
+    return memory_dir / _generate_timestamped_filename()
+
+
+def _get_memory_path_by_index(index: int) -> Optional[Path]:
+    """
+    Get memory file path by index (1-based). 1 = most recent, 2 = second most recent, etc.
+    Returns None if index is out of range.
+    """
+    memory_files = _list_memory_files()
+    if 1 <= index <= len(memory_files):
+        return memory_files[-index]
+    return None
 
 
 @dataclass
@@ -29,6 +85,19 @@ class Memory:
     facts: Dict[str, Any] = field(default_factory = dict)
     messages: List[Dict[str, str]] = field(default_factory = list)
     max_messages: int = 40
+
+    @classmethod
+    def from_index(cls, index: int) -> "Memory":
+        """
+        Create a Memory instance from a conversation index (1-based).
+        If index is out of range or file not found, creates a new memory.
+        """
+        path = _get_memory_path_by_index(index)
+        if path:
+            logger.info(f"Loading memory from: {path}")
+            return cls(path = path)
+        logger.warning(f"Memory index {index} not found, creating new memory")
+        return cls()
 
     def load(self) -> None:
         if not self.path.exists():
