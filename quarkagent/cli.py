@@ -17,11 +17,11 @@ from rich.markdown import Markdown
 
 sys.path.append(os.getcwd())
 
-from miniagent.memory import Memory
-from miniagent.agent import MiniAgent  
-from miniagent.config import load_config,save_config
+from quarkagent.memory import Memory
+from quarkagent.agent import QuarkAgent  
+from quarkagent.config import load_config,save_config
 
-logger = logging.getLogger("MiniAgent")
+logger = logging.getLogger("QuarkAgent")
 
 # Console instance for rich output
 console = Console()
@@ -187,15 +187,15 @@ def _tool_callback(event: str, name: str, payload: Dict[str, Any]) -> None:
         if CURRENT_STATUS:
            CURRENT_STATUS.start()
 
-def _build_agent(args: argparse.Namespace) -> tuple[MiniAgent, Memory]:
+def _build_agent(args: argparse.Namespace) -> tuple[QuarkAgent, Memory]:
     """
-    Build the MiniAgent instance with the given arguments.
+    Build the QuarkAgent instance with the given arguments.
 
     Args:
         args: Parsed command-line arguments
 
     Returns:
-        Tuple of (MiniAgent instance, Memory instance)
+        Tuple of (QuarkAgent instance, Memory instance)
     """
     cfg = load_config(args.config)
 
@@ -231,7 +231,7 @@ def _build_agent(args: argparse.Namespace) -> tuple[MiniAgent, Memory]:
     if mem_ctx:
         system_prompt = system_prompt.rstrip() + "\n\n" + mem_ctx
 
-    agent = MiniAgent(
+    agent = QuarkAgent(
         model = model,
         api_key = api_key,
         base_url = base_url,
@@ -250,18 +250,17 @@ def _build_agent(args: argparse.Namespace) -> tuple[MiniAgent, Memory]:
     if args.config:
         save_config(cfg, args.config)
     else:
-        save_config(cfg, ".miniagent/configs/config.json")
+        save_config(cfg, ".quarkagent/configs/config.json")
     return agent, memory
 
 def args_parse():
-    parser = argparse.ArgumentParser(prog = "miniagent", description = "MiniAgent interactive CLI")
+    parser = argparse.ArgumentParser(prog = "quarkagent", description = "QuarkAgent interactive CLI")
     parser.add_argument("--config", help = "Path to config JSON for loading")
     parser.add_argument("--model", help = "Choose model to use")
     parser.add_argument("--api-key", help = "API key for LLM service")
     parser.add_argument("--base-url", help = "Base URL for LLM service")
     parser.add_argument("--temperature", type = float, default = 0.3, help = "Temperature for LLM model")
     parser.add_argument("--top-p", type = float, default = 0.9, help = "Top-p (nucleus sampling) for LLM model")
-
     parser.add_argument("--load", type = int, choices = range(1, 9), metavar = "N",
                         help = "Load memory from previous conversation N (1-8), where 1 is the most recent")
     args = parser.parse_args()

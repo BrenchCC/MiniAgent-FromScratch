@@ -9,7 +9,7 @@ readme_path = Path(__file__).parent / "README.md"
 long_description = readme_path.read_text(encoding = "utf-8") if readme_path.exists() else ""
 
 setup(
-    name = "miniagent",
+    name = "quarkagent",
     version = "0.1.0",
     packages = find_packages(),
     install_requires = [
@@ -30,7 +30,7 @@ setup(
     description = "A lightweight CLI Agent framework for AI coding assistant",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "https://github.com/BrenchCC/MiniAgent-FromScratch",
+    url = "https://github.com/BrenchCC/QuarkAgent-FromScratch",
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -56,8 +56,8 @@ setup(
         "framework",
     ],
     project_urls = {
-        "Documentation": "https://github.com/BrenchCC/MiniAgent-FromScratch",
-        "Source": "https://github.com/BrenchCC/MiniAgent-FromScratch",
-        "Tracker": "https://github.com/BrenchCC/MiniAgent-FromScratch/issues",
+        "Documentation": "https://github.com/BrenchCC/QuarkAgent-FromScratch",
+        "Source": "https://github.com/BrenchCC/QuarkAgent-FromScratch",
+        "Tracker": "https://github.com/BrenchCC/QuarkAgent-FromScratch/issues",
     },
 )

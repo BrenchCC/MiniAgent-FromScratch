@@ -7,7 +7,7 @@ import sys
 import json
 import logging
 sys.path.append(os.getcwd())
-from miniagent.utils.json_util import (
+from quarkagent.utils.json_util import (
     extract_json_from_markdown,
     clean_json_string,
     parse_json,
@@ -17,7 +17,7 @@ from miniagent.utils.json_util import (
     extract_tool_call,
     format_tool_response,
 )
-from miniagent.utils.llm_util import (
+from quarkagent.utils.llm_util import (
     extract_tool_calls as llm_extract_tool_calls,
 )
 

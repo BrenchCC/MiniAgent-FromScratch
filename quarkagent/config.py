@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 from dataclasses import dataclass, field
 
-logger = logging.getLogger("MiniAgent_Config")
+logger = logging.getLogger("QuarkAgent_Config")
 
 load_dotenv()
 
@@ -33,11 +33,26 @@ class AgentConfig:
     """Agent configuration"""
 
     llm: LLMConfig = field(default_factory = LLMConfig)
-    system_prompt: str = "You are a helpful AI assistant call MiniAgent, created by Brench."
+    system_prompt: str = field(default_factory = lambda: _load_default_system_prompt())
     default_tools: List[str] = field(default_factory = list)
     enable_reflection: bool = False
     reflection_system_prompt: Optional[str] = None
     reflection_max_iterations: int = 3
+
+
+def _load_default_system_prompt() -> str:
+    """Load default system prompt from prompts/system_prompt.md"""
+    prompt_path = Path(__file__).parent.parent / "prompts" / "system_prompt.md"
+    try:
+        if prompt_path.exists():
+            with open(prompt_path, "r", encoding = "utf-8") as f:
+                return f.read().strip()
+        logger.warning(f"System prompt file not found at {prompt_path}, using default")
+    except Exception as e:
+        logger.error(f"Failed to load system prompt from {prompt_path}: {e}")
+
+    # Fallback to default if file not found or error
+    return "You are a helpful AI assistant call QuarkAgent, created by Brench."
 
 
 def load_config(config_path: Optional[str] = None) -> AgentConfig:

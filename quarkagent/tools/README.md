@@ -1,6 +1,6 @@
-# MiniAgent Tools
+# QuarkAgent Tools
 
-MiniAgent 工具库提供了一系列实用工具，帮助开发者在 AI 助手应用中快速集成各种功能。这些工具覆盖了文件操作、系统管理、网络请求、计算等多个领域。
+QuarkAgent 工具库提供了一系列实用工具，帮助开发者在 AI 助手应用中快速集成各种功能。这些工具覆盖了文件操作、系统管理、网络请求、计算等多个领域。
 
 ## 工具分类
 
@@ -56,7 +56,7 @@ MiniAgent 工具库提供了一系列实用工具，帮助开发者在 AI 助手
 所有工具都使用 `@register_tool` 装饰器进行注册，可以通过以下方式使用：
 
 ```python
-from miniagent.tools import (
+from quarkagent.tools import (
     get_registered_tools,
     get_tool,
     execute_tool,
@@ -119,7 +119,7 @@ result = execute_tool('web_search', query='Python programming', num_results=5)
 ## 目录结构
 
 ```
-miniagent/tools/
+quarkagent/tools/
 ├── __init__.py          # 工具注册和管理模块
 ├── basic_tools.py       # 基础工具
 ├── code_tools.py        # 代码/文件操作工具

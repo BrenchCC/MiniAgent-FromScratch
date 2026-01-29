@@ -169,7 +169,7 @@ def load_builtin_tools(tools: Union[List[str], str, None] = None) -> List[str]:
 
     loaded_tools = []
     for tool_name in tools:
-        module_path = f"miniagent.tools.{tool_name}"
+        module_path = f"quarkagent.tools.{tool_name}"
         loaded = load_tool_from_module(module_path)
         loaded_tools.extend(loaded)
     

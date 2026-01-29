@@ -8,7 +8,7 @@ from typing import Dict, List, Union, Any
 
 sys.path.append(os.getcwd())
 
-from miniagent.tools import register_tool
+from quarkagent.tools import register_tool
 
 logger = logging.getLogger(__name__)
 

@@ -9,14 +9,14 @@ from typing import Any, Dict, List, Optional
 
 from dataclasses import dataclass, field
 
-logger = logging.getLogger("MiniAgent Memory")
+logger = logging.getLogger("QuarkAgent Memory")
 
 
 def _get_memory_dir() -> Path:
     """
     Get memory directory from environment variable or use default location
     """
-    memory_dir = Path(os.environ.get("MINIAGENT_HOME", ".miniagent")).expanduser() / "memory"
+    memory_dir = Path(os.environ.get("QUARKAGENT_HOME", ".quarkagent")).expanduser() / "memory"
     memory_dir.mkdir(parents = True, exist_ok = True)
     return memory_dir
 
@@ -78,7 +78,7 @@ def _get_memory_path_by_index(index: int) -> Optional[Path]:
 @dataclass
 class Memory:
     """
-    Memory class for MiniAgent
+    Memory class for QuarkAgent
     """
     path: Path = field(default_factory = _default_memory_path)
     preferences: Dict[str, Any] = field(default_factory = dict)

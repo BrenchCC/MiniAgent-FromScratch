@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Tuple, Optional
 
 sys.path.append(os.getcwd())
 
-from miniagent.tools import register_tool
+from quarkagent.tools import register_tool
 
 logger = logging.getLogger(__name__)
 

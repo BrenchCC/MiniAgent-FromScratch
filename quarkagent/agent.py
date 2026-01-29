@@ -12,14 +12,14 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 sys.path.append(os.getcwd())
 
-from miniagent.utils import parse_json, Reflector   
-from miniagent.tools import get_registered_tools, get_tool, get_tool_description
+from quarkagent.utils import parse_json, Reflector   
+from quarkagent.tools import get_registered_tools, get_tool, get_tool_description
 
-logger = logging.getLogger("MiniAgent")
+logger = logging.getLogger("QuarkAgent")
 
-class MiniAgent():
+class QuarkAgent():
     """
-    MiniAgent main class for MiniAgent
+    QuarkAgent main class for QuarkAgent
     """
     def __init__(
         self,
@@ -34,15 +34,15 @@ class MiniAgent():
         **kwargs
     ):
         """
-        Initialize MiniAgent
+        Initialize QuarkAgent
 
         Args:
             model: LLM model name
             api_key: API key for LLM service
             base_url: Base URL for LLM service (optional)
             temperature: Temperature for LLM sampling (default: 0.7)
-            system_prompt: System prompt for MiniAgent (optional)
-            system_prompt_file: Path to system prompt file (optional, defaults to ./prompts/system_prompt.txt)
+            system_prompt: System prompt for QuarkAgent (optional)
+            system_prompt_file: Path to system prompt file (optional, defaults to prompts/system_prompt.md)
             use_reflector: Whether to use reflector for response improvement (default: False)
             **kwargs: Additional keyword arguments for LLM client
         """
@@ -66,10 +66,10 @@ class MiniAgent():
                     logger.info(f"System prompt loaded from file: {prompt_file}")
                 except Exception as e:
                     logger.warning(f"Failed to load system prompt from file {prompt_file}: {e}")
-                    self.system_prompt = "You are a helpful assistant called MiniAgent created by brench that can use tools to get information and perform tasks."
+                    self.system_prompt = "You are a helpful assistant called QuarkAgent created by brench that can use tools to get information and perform tasks."
             else:
                 logger.warning(f"System prompt file not found: {prompt_file}")
-                self.system_prompt = "You are a helpful assistant called MiniAgent created by brench that can use tools to get information and perform tasks."
+                self.system_prompt = "You are a helpful assistant called QuarkAgent created by brench that can use tools to get information and perform tasks."
         self.tools = []
         self.client = None
         self.use_reflector = use_reflector
@@ -83,7 +83,7 @@ class MiniAgent():
         else:
             self.reflector = None
         
-        logger.info(f"MiniAgent initialized with model {self.model}, temperature {self.temperature}, top_p {self.top_p}, system_prompt {self.system_prompt}, use_reflector {self.use_reflector}")
+        logger.info(f"QuarkAgent initialized with model {self.model}, temperature {self.temperature}, top_p {self.top_p}, system_prompt {self.system_prompt}, use_reflector {self.use_reflector}")
 
     def _init_llm_client(self):
         """
@@ -120,7 +120,7 @@ class MiniAgent():
                 raise ValueError(f"Tool is missing a required field: {key}")
                 
         self.tools.append(tool)
-        logger.debug(f"Added tool for MiniAgent: {tool['name']}")
+        logger.debug(f"Added tool for QuarkAgent: {tool['name']}")
 
     def load_builtin_tool(self, tool_name: str):
         """
@@ -455,7 +455,7 @@ class MiniAgent():
                 result = {"error": error_msg}
         else:
             # Fallback to global registered tools
-            from miniagent.tools import execute_tool
+            from quarkagent.tools import execute_tool
             result = execute_tool(tool_name, **tool_args)
 
         # Call tool callback if provided
@@ -586,7 +586,7 @@ class MiniAgent():
         """
         Execute the default Agent tool calling method
 
-        This is the main entry method for MiniAgent, using formatted text to implement tool calling.
+        This is the main entry method for QuarkAgent, using formatted text to implement tool calling.
         The method parses and executes tool call instructions from the model output.
 
         Args:
@@ -615,11 +615,11 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
 
     def test_agent():
-        """Test the MiniAgent functionality"""
-        logger.info("Starting MiniAgent test...")
+        """Test the QuarkAgent functionality"""
+        logger.info("Starting QuarkAgent test...")
 
-        # Test 1: Initialize MiniAgent
-        logger.info("\nTest 1: Initializing MiniAgent")
+        # Test 1: Initialize QuarkAgent
+        logger.info("\nTest 1: Initializing QuarkAgent")
         try:
             api_key = os.getenv("LLM_API_KEY")
             base_url = os.getenv("LLM_BASE_URL")
@@ -629,16 +629,16 @@ if __name__ == "__main__":
                 logger.warning("OPENAI_API_KEY not found in .env file, using dummy key")
                 api_key = "dummy_key"
 
-            agent = MiniAgent(
+            agent = QuarkAgent(
                 model = model,
                 api_key = api_key,
                 base_url = base_url,
                 temperature = 0.7,
                 use_reflector = False
             )
-            logger.info("✅ MiniAgent initialized successfully")
+            logger.info("✅ QuarkAgent initialized successfully")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize MiniAgent: {e}")
+            logger.error(f"❌ Failed to initialize QuarkAgent: {e}")
             return False
 
         # Test 2: Check available tools

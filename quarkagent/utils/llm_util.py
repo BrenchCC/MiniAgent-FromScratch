@@ -5,7 +5,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 sys.path.append(os.getcwd())
-from miniagent.utils.json_util import truncate_message_content
+from quarkagent.utils.json_util import truncate_message_content
 
 logger = logging.getLogger("LLM Call Util")
 
